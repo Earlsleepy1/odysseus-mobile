@@ -1,0 +1,9 @@
+<resources>
+<style name="Theme.OdysseusMobile" parent="android:style/Theme.Material.Light.NoActionBar">
+    <item name="android:fontFamily">sans</item>
+    <item name="android:colorAccent">#e06c75</item>
+    <item name="android:navigationBarColor">#282c34</item>
+    <item name="android:statusBarColor">#282c34</item>
+    <item name="android:windowLightStatusBar">false</item>
+</style>
+</resources>
