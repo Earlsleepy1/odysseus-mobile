@@ -1,6 +1,6 @@
 # Odysseus Mobile for Android
 
-This is a lightweight Android app wrapper for the Odysseus web workspace. It includes the mobile UI changes from the main project and connects to an Odysseus server over HTTP or HTTPS. The Python backend stays on your computer/server; the Android app is the mobile client.
+This is a native Android client for the Odysseus server. It does not embed the website or use a WebView. The Android app owns the connection screen, authentication, chat list loading, chat screen, and message sending; the Python backend stays on your computer/server.
 
 ## Test with an Android emulator
 
@@ -12,7 +12,7 @@ This is a lightweight Android app wrapper for the Odysseus web workspace. It inc
    ```
 
 3. Install `app/build/outputs/apk/debug/app-debug.apk` on the emulator.
-4. Leave the default server address as `http://10.0.2.2:7000` and tap **Connect**.
+4. Leave the default server address as `http://10.0.2.2:7000` and tap **Connect**. The native client will sign in and load the first chat.
 
 `10.0.2.2` means the Android emulator's host computer. If the server uses another port, edit the address in the app.
 
@@ -25,4 +25,4 @@ This is a lightweight Android app wrapper for the Odysseus web workspace. It inc
 
 Use HTTPS when the server is exposed outside your private network. The manifest currently allows HTTP so local emulator and LAN testing works.
 
-The app remembers the last server address you entered.
+The app remembers the last server address you entered. The current native test build supports login/setup, 2FA prompt, model/session loading, creating a first session, loading a chat screen, and sending chat messages over the Odysseus API.
