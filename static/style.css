@@ -40451,3 +40451,155 @@ body.theme-frosted .modal {
   .compare-grid[data-cols] { grid-template-columns: 1fr !important; overflow-y: auto; }
   .compare-pane { min-height: 60dvh; }
 }
+
+
+/* Mobile app shell: a persistent five-action navigation bar keeps the most
+   common destinations reachable without opening the full desktop sidebar. */
+.mobile-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 220;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: end;
+    gap: 2px;
+    padding: 7px 8px calc(7px + env(safe-area-inset-bottom, 0px));
+    background: color-mix(in srgb, var(--panel) 94%, transparent);
+    border-top: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.16);
+    backdrop-filter: blur(18px);
+  }
+
+  .mobile-nav-item {
+    min-width: 0;
+    min-height: 52px;
+    height: auto;
+    padding: 6px 2px 3px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: color-mix(in srgb, var(--fg) 62%, transparent);
+    font: 500 10px/1.1 Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-nav-item svg {
+    flex: 0 0 auto;
+    opacity: 0.78;
+  }
+
+  .mobile-nav-item:active,
+  .mobile-nav-item:focus-visible {
+    color: var(--accent, var(--red));
+    background: color-mix(in srgb, var(--accent, var(--red)) 12%, transparent);
+    outline: none;
+  }
+
+  .mobile-nav-primary {
+    min-height: 58px;
+    margin: -10px 4px 0;
+    padding-top: 9px;
+    border: 1px solid color-mix(in srgb, var(--accent, var(--red)) 45%, var(--border));
+    background: color-mix(in srgb, var(--accent, var(--red)) 14%, var(--panel));
+    color: var(--accent, var(--red));
+    box-shadow: 0 5px 16px color-mix(in srgb, var(--accent, var(--red)) 18%, transparent);
+  }
+
+  .mobile-nav-primary svg {
+    opacity: 1;
+  }
+
+  .chat-container {
+    padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .chat-container.welcome-active .chat-input-bar {
+    margin-bottom: 0;
+  }
+
+  .chat-input-bar {
+    margin-bottom: 0;
+    padding: 8px 9px calc(8px + env(safe-area-inset-bottom, 0px));
+    border-radius: 18px;
+  }
+
+  .chat-input-bar textarea#message {
+    font-size: 16px;
+    line-height: 1.45;
+    min-height: 28px;
+  }
+
+  .chat-input-bottom {
+    gap: 4px;
+    margin-top: 2px;
+  }
+
+  .chat-input-left {
+    gap: 1px;
+  }
+
+  .chat-input-right {
+    gap: 4px;
+  }
+
+  .mode-toggle-btn {
+    min-width: 0;
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+
+  .chat-history {
+    padding-left: 0;
+    padding-right: 0;
+    margin-bottom: 6px;
+  }
+
+  .msg {
+    padding: 10px 11px;
+  }
+
+  .msg .body {
+    font-size: 1em;
+  }
+
+  .modal-content {
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+
+  #sidebar-backdrop {
+    bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width: 380px) {
+  .mobile-bottom-nav {
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+
+  .mobile-nav-item {
+    font-size: 9px;
+  }
+
+  .mobile-nav-item svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .mobile-nav-primary {
+    margin-left: 2px;
+    margin-right: 2px;
+  }
+}

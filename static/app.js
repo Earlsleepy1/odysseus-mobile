@@ -4387,3 +4387,36 @@ if (document.readyState === 'loading') {
 } else {
   startOdysseusApp();
 }
+
+
+// Mobile bottom navigation delegates to the same actions as the desktop
+// sidebar, keeping one source of truth for chats, tools, search, and settings.
+(function initMobileBottomNav() {
+  const run = () => {
+    const byId = (id) => document.getElementById(id);
+    const openSidebar = (sectionId) => {
+      const sidebar = byId('sidebar');
+      if (!sidebar) return;
+      if (window.innerWidth < 768 && typeof window._odyOpenSidebar === 'function') {
+        window._odyOpenSidebar('right');
+      } else {
+        sidebar.classList.remove('hidden');
+        window.syncRailSide?.();
+      }
+      if (sectionId) {
+        window.setTimeout(() => {
+          byId(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 80);
+      }
+    };
+
+    byId('mobile-nav-chats')?.addEventListener('click', () => openSidebar('sessions-section'));
+    byId('mobile-nav-tools')?.addEventListener('click', () => openSidebar('tools-section'));
+    byId('mobile-nav-search')?.addEventListener('click', () => byId('rail-search-btn')?.click());
+    byId('mobile-nav-new')?.addEventListener('click', () => byId('rail-new-session')?.click());
+    byId('mobile-nav-settings')?.addEventListener('click', () => byId('user-bar-settings')?.click());
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run, { once: true });
+  else run();
+})();
