@@ -25,8 +25,12 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import javax.net.ssl.SSLException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -49,6 +53,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
+        CookieHandler.setDefault(new CookieManager(null, CookiePolicy.ACCEPT_ALL));
         endpoint = getPreferences(MODE_PRIVATE).getString("endpoint", DEFAULT_ENDPOINT);
         showConnectionScreen();
     }
@@ -62,7 +67,7 @@ public class MainActivity extends Activity {
         title.setGravity(Gravity.CENTER);
         root.addView(title, fullWrap());
 
-        TextView hint = text("Native Android client", 15, Color.LTGRAY);
+        TextView hint = text("Native Android client — local servers usually use http://", 15, Color.LTGRAY);
         hint.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams hintParams = fullWrap();
         hintParams.setMargins(0, 10, 0, 26);
@@ -321,7 +326,10 @@ public class MainActivity extends Activity {
                 int code = connection.getResponseCode();
                 String response = read(code >= 400 ? connection.getErrorStream() : connection.getInputStream());
                 main.post(() -> callback.onResult(response));
-            } catch (Exception error) { showError("Server connection failed", error); }
+            } catch (Exception error) {
+                if (retryWithoutTls(error, method, path, body, callback, false)) return;
+                showError(connectionError(error), error);
+            }
         });
     }
 
@@ -334,8 +342,29 @@ public class MainActivity extends Activity {
                 int code = connection.getResponseCode();
                 String response = read(code >= 400 ? connection.getErrorStream() : connection.getInputStream());
                 main.post(() -> callback.onResult(response));
-            } catch (Exception error) { showError("Server connection failed", error); }
+            } catch (Exception error) {
+                if (retryWithoutTls(error, method, path, body, callback, true)) return;
+                showError(connectionError(error), error);
+            }
         });
+    }
+
+    private boolean retryWithoutTls(Exception error, String method, String path, String body, OnResponse callback, boolean form) {
+        String failedEndpoint = endpoint;
+        if (!failedEndpoint.startsWith("https://")) return false;
+        String fallback = "http://" + failedEndpoint.substring(8);
+        if (!(error instanceof SSLException)) return false;
+        endpoint = fallback;
+        getPreferences(MODE_PRIVATE).edit().putString("endpoint", endpoint).apply();
+        if (form) requestForm(method, path, body, callback);
+        else request(method, path, body, callback);
+        return true;
+    }
+
+    private String connectionError(Exception error) {
+        String detail = error.getMessage();
+        if (detail == null || detail.trim().isEmpty()) detail = error.getClass().getSimpleName();
+        return "Server connection failed: " + detail + "\nTry http://" + endpoint.replaceFirst("^https://", "");
     }
 
     private HttpURLConnection open(String method, String path) throws Exception {
