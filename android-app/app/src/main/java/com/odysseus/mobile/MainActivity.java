@@ -368,7 +368,10 @@ public class MainActivity extends Activity {
         if (lower.contains("unexpected end") || lower.contains("eof") || lower.contains("reset")) {
             return "The server closed the connection before replying. Check that the address uses http:// (not https://), that Odysseus is bound to 0.0.0.0, and that Windows Firewall allows TCP 7000. Current: " + endpoint;
         }
-        return "Server connection failed: " + detail + "\nCurrent address: " + endpoint;
+        if (lower.contains("failed to connect") || lower.contains("connection refused") || lower.contains("timed out") || lower.contains("unable to resolve host")) {
+            return "Cannot reach the server. Use http://192.168.1.79:7000, not https://, and confirm the phone is on the same Wi-Fi. The server must listen on 0.0.0.0 and Windows Firewall must allow TCP 7000. Current: " + endpoint;
+        }
+        return "Server connection failed: " + detail + "\\nCurrent address: " + endpoint;
     }
 
     private HttpURLConnection open(String method, String path) throws Exception {
