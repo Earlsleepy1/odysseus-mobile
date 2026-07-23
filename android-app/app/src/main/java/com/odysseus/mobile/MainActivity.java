@@ -364,7 +364,11 @@ public class MainActivity extends Activity {
     private String connectionError(Exception error) {
         String detail = error.getMessage();
         if (detail == null || detail.trim().isEmpty()) detail = error.getClass().getSimpleName();
-        return "Server connection failed: " + detail + "\nTry http://" + endpoint.replaceFirst("^https://", "");
+        String lower = detail.toLowerCase();
+        if (lower.contains("unexpected end") || lower.contains("eof") || lower.contains("reset")) {
+            return "The server closed the connection before replying. Check that the address uses http:// (not https://), that Odysseus is bound to 0.0.0.0, and that Windows Firewall allows TCP 7000. Current: " + endpoint;
+        }
+        return "Server connection failed: " + detail + "\nCurrent address: " + endpoint;
     }
 
     private HttpURLConnection open(String method, String path) throws Exception {
@@ -374,6 +378,10 @@ public class MainActivity extends Activity {
         connection.setReadTimeout(300000);
         connection.setDoInput(true);
         connection.setUseCaches(false);
+        connection.setInstanceFollowRedirects(true);
+        connection.setRequestProperty("Accept", "application/json, text/event-stream, */*");
+        connection.setRequestProperty("User-Agent", "Odysseus-Mobile/1.0 Android");
+        connection.setRequestProperty("Connection", "close");
         if (method.equals("POST")) connection.setDoOutput(true);
         return connection;
     }
