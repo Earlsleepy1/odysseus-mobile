@@ -1483,9 +1483,15 @@ def _extract_attachment_to_disk(msg, index, target_dir):
                 return None
             target_dir.mkdir(parents=True, exist_ok=True)
             filepath = target_dir / safe_name
-            with open(filepath, "wb") as f:
+            base_dir_resolved = target_dir.resolve()
+            filepath_resolved = filepath.resolve()
+            try:
+                filepath_resolved.relative_to(base_dir_resolved)
+            except ValueError:
+                raise Exception("Invalid file path")
+            with open(filepath_resolved, "wb") as f:
                 f.write(payload)
-            return filepath
+            return filepath_resolved
         idx += 1
     return None
 

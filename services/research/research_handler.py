@@ -10,6 +10,7 @@ Includes a task registry so research survives page refreshes and can be cancelle
 import asyncio
 import json
 import logging
+import os
 import time
 from pathlib import Path
 from typing import Optional, Dict
@@ -217,6 +218,10 @@ class ResearchHandler:
             entry["sources"] = sources
 
             path = RESEARCH_DATA_DIR / f"{session_id}.json"
+            base_real = os.path.realpath(RESEARCH_DATA_DIR)
+            target_real = os.path.realpath(path)
+            if os.path.commonpath([base_real, target_real]) != base_real:
+                raise Exception("Invalid file path")
             data = {
                 "query": entry["query"],
                 "status": entry["status"],
@@ -225,8 +230,8 @@ class ResearchHandler:
                 "started_at": entry["started_at"],
                 "completed_at": time.time(),
             }
-            path.write_text(json.dumps(data), encoding="utf-8")
-            logger.info(f"Research result saved to {path}")
+            Path(target_real).write_text(json.dumps(data), encoding="utf-8")
+            logger.info(f"Research result saved to {target_real}")
         except Exception as e:
             logger.error(f"Failed to save research result: {e}")
 

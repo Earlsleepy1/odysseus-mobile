@@ -2703,8 +2703,12 @@ def setup_email_routes():
                 filepath = _extract_attachment_to_disk(msg, idx, target_dir)
                 if not filepath:
                     raise HTTPException(status_code=404, detail="Inline image not found")
+                base_real = os.path.realpath(target_dir)
+                target_real = os.path.realpath(filepath)
+                if os.path.commonpath([base_real, target_real]) != base_real:
+                    raise HTTPException(status_code=400, detail="Invalid file path")
                 return FileResponse(
-                    path=str(filepath),
+                    path=str(target_real),
                     media_type=ct,
                     headers={"Content-Disposition": f'inline; filename="{filepath.name}"'},
                 )

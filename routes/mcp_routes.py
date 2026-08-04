@@ -535,6 +535,8 @@ def setup_mcp_routes(mcp_manager: McpManager):
             token_file = oauth_cfg.get("token_file", "")
             if not keys_file or not token_file:
                 raise HTTPException(400, "OAuth keys/token file not configured")
+            if ".." in keys_file or ".." in token_file:
+                raise HTTPException(400, "Invalid file path")
 
             with open(keys_file, encoding="utf-8") as f:
                 keys_data = json.load(f)
