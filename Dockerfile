@@ -107,5 +107,8 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 7000
 
+# Create non-root user for security (entrypoint will use this or create dynamically based on PUID/PGID)
+RUN useradd -U -u 1000 appuser && chown -R 1000:1000 /app
+
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7000"]
