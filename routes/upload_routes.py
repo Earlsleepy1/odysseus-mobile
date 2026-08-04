@@ -386,8 +386,12 @@ def setup_upload_routes(upload_handler):
                 thumb_dir = os.path.join(_upload_root(), ".thumbs")
                 os.makedirs(thumb_dir, exist_ok=True)
                 thumb_path = os.path.join(thumb_dir, file_id + ".jpg")
-                if (not os.path.exists(thumb_path)
-                        or os.path.getmtime(thumb_path) < os.path.getmtime(path)):
+                thumb_dir_real = os.path.realpath(thumb_dir)
+                thumb_path_real = os.path.realpath(thumb_path)
+                if os.path.commonpath([thumb_dir_real, thumb_path_real]) != thumb_dir_real:
+                    raise HTTPException(400, "Invalid file path")
+                if (not os.path.exists(thumb_path_real)
+                        or os.path.getmtime(thumb_path_real) < os.path.getmtime(path)):
                     im = Image.open(path)
                     # iPhone / camera JPEGs encode rotation in EXIF rather than
                     # the pixel data. Browsers honour that on the original via
@@ -398,8 +402,8 @@ def setup_upload_routes(upload_handler):
                     im.thumbnail((320, 320))
                     if im.mode not in ("RGB", "L"):
                         im = im.convert("RGB")
-                    im.save(thumb_path, "JPEG", quality=80)
-                return FileResponse(thumb_path, media_type="image/jpeg", headers=UPLOAD_RESPONSE_HEADERS)
+                    im.save(thumb_path_real, "JPEG", quality=80)
+                return FileResponse(thumb_path_real, media_type="image/jpeg", headers=UPLOAD_RESPONSE_HEADERS)
             except Exception as e:
                 logger.warning(f"Thumbnail generation failed for {file_id}: {e}")
                 # Fall through to the full image.

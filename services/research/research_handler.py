@@ -216,7 +216,12 @@ class ResearchHandler:
                 sources = self._extract_sources(researcher.findings)
             entry["sources"] = sources
 
-            path = RESEARCH_DATA_DIR / f"{session_id}.json"
+            base_dir = RESEARCH_DATA_DIR.resolve()
+            path = (base_dir / f"{session_id}.json").resolve()
+            try:
+                path.relative_to(base_dir)
+            except ValueError:
+                raise Exception("Invalid file path")
             data = {
                 "query": entry["query"],
                 "status": entry["status"],

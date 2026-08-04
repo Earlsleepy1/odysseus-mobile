@@ -536,6 +536,8 @@ def setup_mcp_routes(mcp_manager: McpManager):
             if not keys_file or not token_file:
                 raise HTTPException(400, "OAuth keys/token file not configured")
 
+            if ".." in keys_file:
+                raise Exception("Invalid file path")
             with open(keys_file, encoding="utf-8") as f:
                 keys_data = json.load(f)
             keys = keys_data.get("installed") or keys_data.get("web")
@@ -565,6 +567,8 @@ def setup_mcp_routes(mcp_manager: McpManager):
             logger.info(f"OAuth tokens received for server {server_id}")
 
             # Save tokens to the file the MCP package expects
+            if ".." in token_file:
+                raise Exception("Invalid file path")
             os.makedirs(os.path.dirname(token_file), exist_ok=True)
             with open(token_file, "w", encoding="utf-8") as f:
                 json.dump(tokens, f, indent=2)
