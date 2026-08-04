@@ -83,6 +83,13 @@ class EditFileTool:
         replace_all = bool(args.get("replace_all", False))
         if not raw_path:
             return {"error": "edit_file: path required", "exit_code": 1}
+        # Security: Validate and confine the path to prevent directory traversal attacks.
+        # _resolve_tool_path() performs comprehensive validation:
+        # 1. Resolves symlinks and relative paths using os.path.realpath()
+        # 2. Blocks access to sensitive directories (.ssh, .gnupg, etc.)
+        # 3. Ensures the resolved path stays within allowed roots (workspace or data dir)
+        # This prevents Local File Inclusion (LFI) attacks by rejecting paths with ".."
+        # or absolute paths that escape the confined directory boundaries.
         try:
             path = _resolve_tool_path(raw_path)
         except ValueError as e:
@@ -143,6 +150,13 @@ class ReadFileTool:
                 limit = int(_a.get("limit") or 0)
             except (json.JSONDecodeError, TypeError, ValueError):
                 pass
+        # Security: Validate and confine the path to prevent directory traversal attacks.
+        # _resolve_tool_path() performs comprehensive validation:
+        # 1. Resolves symlinks and relative paths using os.path.realpath()
+        # 2. Blocks access to sensitive directories (.ssh, .gnupg, etc.)
+        # 3. Ensures the resolved path stays within allowed roots (workspace or data dir)
+        # This prevents Local File Inclusion (LFI) attacks by rejecting paths with ".."
+        # or absolute paths that escape the confined directory boundaries.
         try:
             path = _resolve_tool_path(raw_path)
         except ValueError as e:
@@ -201,6 +215,13 @@ class WriteFileTool:
                     body = str(_a.get("content", ""))
             except (json.JSONDecodeError, TypeError, ValueError):
                 pass
+        # Security: Validate and confine the path to prevent directory traversal attacks.
+        # _resolve_tool_path() performs comprehensive validation:
+        # 1. Resolves symlinks and relative paths using os.path.realpath()
+        # 2. Blocks access to sensitive directories (.ssh, .gnupg, etc.)
+        # 3. Ensures the resolved path stays within allowed roots (workspace or data dir)
+        # This prevents Local File Inclusion (LFI) attacks by rejecting paths with ".."
+        # or absolute paths that escape the confined directory boundaries.
         try:
             path = _resolve_tool_path(raw_path)
         except ValueError as e:
@@ -242,6 +263,12 @@ class LsTool:
                 raw_path = ""
         else:
             raw_path = _s.split("\n", 1)[0].strip()
+        # Security: Validate and confine the directory path to prevent traversal attacks.
+        # _resolve_search_root() performs the same validation as _resolve_tool_path():
+        # 1. Resolves symlinks and relative paths using os.path.realpath()
+        # 2. Blocks access to sensitive directories (.ssh, .gnupg, etc.)
+        # 3. Ensures the resolved path stays within allowed roots (workspace or data dir)
+        # This prevents directory traversal attacks on listing operations.
         try:
             root = _resolve_search_root(raw_path)
         except ValueError as e:
@@ -300,6 +327,12 @@ class GlobTool:
         pattern = str(args.get("pattern", "")).strip()
         if not pattern:
             return {"error": "glob: pattern is required", "exit_code": 1}
+        # Security: Validate and confine the directory path to prevent traversal attacks.
+        # _resolve_search_root() performs the same validation as _resolve_tool_path():
+        # 1. Resolves symlinks and relative paths using os.path.realpath()
+        # 2. Blocks access to sensitive directories (.ssh, .gnupg, etc.)
+        # 3. Ensures the resolved path stays within allowed roots (workspace or data dir)
+        # This prevents directory traversal attacks on glob pattern matching operations.
         try:
             root = _resolve_search_root(str(args.get("path", "")))
         except ValueError as e:
@@ -408,6 +441,12 @@ class GrepTool:
         except (TypeError, ValueError):
             max_hits = _CODENAV_MAX_HITS
         max_hits = max(1, min(max_hits, _CODENAV_MAX_HITS))
+        # Security: Validate and confine the directory path to prevent traversal attacks.
+        # _resolve_search_root() performs the same validation as _resolve_tool_path():
+        # 1. Resolves symlinks and relative paths using os.path.realpath()
+        # 2. Blocks access to sensitive directories (.ssh, .gnupg, etc.)
+        # 3. Ensures the resolved path stays within allowed roots (workspace or data dir)
+        # This prevents directory traversal attacks on grep search operations.
         try:
             root = _resolve_search_root(str(args.get("path", "")))
         except ValueError as e:
