@@ -999,6 +999,8 @@ def positive_int(value: str) -> int:
 
 def write_output(report: str, path: str | None) -> None:
     if path:
+        if ".." in path:
+            raise ValueError("Invalid file path")
         Path(path).write_text(ANSI_RE.sub("", report), encoding="utf-8")
         return
     sys.stdout.write(report)

@@ -947,9 +947,13 @@ def _extract_attachment_to_disk(msg, index, target_dir):
                 return None
             os.makedirs(target_dir, exist_ok=True)
             filepath = os.path.join(target_dir, safe_name)
-            with open(filepath, "wb") as f:
+            base_real = os.path.realpath(target_dir)
+            target_real = os.path.realpath(filepath)
+            if os.path.commonpath([base_real, target_real]) != base_real:
+                raise ValueError("Invalid file path")
+            with open(target_real, "wb") as f:
                 f.write(payload)
-            return filepath
+            return target_real
         idx += 1
     return None
 
